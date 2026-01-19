@@ -1,11 +1,11 @@
 services:
   db:
     image: postgres:18
-    container_name: # Add docker container name
+    container_name: cafe_sales_data_cleaning_eda
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: root
-      POSTGRES_DB: # Add database name
+      POSTGRES_DB: cafe_sales_data
     ports:
       - "5440:5432" # Set port to 5440 for docker
     volumes:

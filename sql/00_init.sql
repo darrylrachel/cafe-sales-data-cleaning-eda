@@ -4,54 +4,41 @@
 --            truncate, and load CSVs from /datasets.
 -- =============================================================
 
-CREATE OR REPLACE PROCEDURE "schema name".load_"schema name"()
-LANGUAGE plpgsql
-AS $$
-DECLARE
-  v_start       timestamptz := clock_timestamp();
-  v_step_start  timestamptz;
-  v_rows        bigint;
-BEGIN
-  RAISE NOTICE 'Starting "schema name" load...';
-
-  -- --------------------
-  -- Schemas
-  -- --------------------
-  CREATE SCHEMA IF NOT EXISTS "schema name";
-  CREATE SCHEMA IF NOT EXISTS "schema name";
-  CREATE SCHEMA IF NOT EXISTS "schema name";
-
-  -- --------------------
-  -- Tables (Bronze)
-  -- --------------------
+DROP DATABASE IF EXISTS cafe_sales;
+CREATE DATABASE cafe_sales;
 
 
+-- --------------------
+-- Schemas
+-- --------------------
+CREATE SCHEMA IF NOT EXISTS raw;
+CREATE SCHEMA IF NOT EXISTS stg;
+CREATE SCHEMA IF NOT EXISTS dw;
+
+-- --------------------
+-- Tables
+-- --------------------
+DROP TABLE IF EXISTS raw.cafe_sales;
+CREATE TABLE raw.cafe_sales (
+    "Transaction ID" TEXT,
+    Item TEXT,
+    Quantity TEXT,
+    "Price Per Unit" TEXT,
+    "Total Spent" TEXT,
+    "Payment Method" TEXT,
+    Location TEXT,
+    "Transaction Date" TEXT
+);
 
 
-  -- --------------------
-  -- Truncate for reload
-  -- --------------------
-  RAISE NOTICE 'Truncating "schema name" tables...';
-  TRUNCATE TABLE
-    "schema name".
+-- --------------------
+-- Truncate for reload
+-- --------------------
+TRUNCATE TABLE raw.cafe_sales;
 
-  -- --------------------
-  -- Load: File
-  -- --------------------
-  v_step_start := clock_timestamp();
-  EXECUTE format($f$
-    COPY bronze.crm_cust_info
-    FROM %L
-    WITH (FORMAT csv, HEADER true, DELIMITER ',', NULL '', ENCODING 'UTF8')
-  $f$, '/datasets/ add_file.csv');
-
-  SELECT count(*) INTO v_rows FROM bronze. add_file;
-  RAISE NOTICE 'Loaded "schema name". add_file: % rows (%.3f sec)',
-    v_rows, EXTRACT(epoch FROM (clock_timestamp() - v_step_start));
-
-
-END;
-$$;
-
--- Run it:
-CALL bronze.load_"schema name"();
+-- --------------------
+-- Load: File
+-- --------------------
+COPY raw.cafe_sales
+FROM '/datasets/dirty_cafe_sales.csv'
+WITH (FORMAT csv, HEADER true, DELIMITER ',', NULL '', ENCODING 'UTF8');
