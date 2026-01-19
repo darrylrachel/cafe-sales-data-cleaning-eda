@@ -1,2 +1,2 @@
-# SQL Data Project Starter Kit
+# Cafe Sales Data Cleaning EDA
 Delete before pushing
